@@ -59,7 +59,18 @@ class OneBotClient:
         if message_seq is not None:
             params["message_seq"] = message_seq
 
-        raw_messages = self._call("get_group_msg_history", **params)
+        data = self._call("get_group_msg_history", **params)
+        if not data:
+            return []
+
+        # API returns {"messages": [...]} or directly a list
+        if isinstance(data, dict):
+            raw_messages = data.get("messages", [])
+        elif isinstance(data, list):
+            raw_messages = data
+        else:
+            return []
+
         if not raw_messages:
             return []
 
